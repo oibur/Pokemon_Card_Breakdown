@@ -1,41 +1,70 @@
-import time
+#Libraries required
+import matplotlib.pyplot as plt
 import random
 import requests
+import time
+
+#My current key for the API
 api_key = 'c2eaa76b-c34c-4d3a-8f33-da95a230d9ea'
 
+#Constant for game function
 N_GAMES = 3
+
 
 def main():
     print('Welcome Pokemon Navigator')
     name = input("What is your name? ")
+    #Starts the master loop
     while True:
         print(f'What would you like to do {name}?')
         print('Enter 1 to see how many times a Pokemon has appeared on a card')
         print('Enter 2 to look at the rarity breakdown of a Pokemons cards')
         print('Enter 3 to play a game of Bulbasaur, Charmander, Squirtle!')
         print('Enter 0 to exit')
+        #Allows card number look-up through the card function
         choice = int(input('Choice: '))
         if choice == 1:
             cards()
+        #Allows card rarity look-up through the rarity function
         elif choice == 2:
             rarities()
+        #Allows the user to play a game through the game function
         elif choice == 3:
             game()
+        #Breaks the master loop
         else:
             break
 
 
+def make_a_graph(rarity_dict):
+    rarity = []
+    number = []
+    items = rarity_dict.items()
+    for item in items:
+        rarity.append(item[0]), number.append(item[1]) 
+    plt.barh(rarity, number)
+    plt.show()
+
+
+#Function for the rock paper scissors themed game
 def game():
     print_welcome()
     score = 0
     for i in range(N_GAMES):
+        #Decides what the AI will choose
         ai_move = get_ai_move()
+        #Gets the human players move
         human_move = get_human_move()
+        #Determines who won the match
         outcome = decide_outcome(ai_move, human_move)
+        #Announces who won the match
         announce_result(ai_move, outcome)
+        #Keeps track of wins and losses
         score += calc_outcome_score(outcome)
+    #Prints the final score 
     print(f'Your score is {score}')
 
+#Keeps track of wins and losses during games
 def calc_outcome_score(outcome):
     if outcome == "user wins!":
         return 1
@@ -45,10 +74,11 @@ def calc_outcome_score(outcome):
         return -1
 
 
+#Announces who won the game
 def announce_result(ai_move, outcome):
     print(f'The ai chose {ai_move}, {outcome}')
 
-
+#Determines who won the game based on choices
 def decide_outcome(ai_move, human_move):
     if ai_move == human_move:
         return "tied"
@@ -66,6 +96,7 @@ def decide_outcome(ai_move, human_move):
         return "ai wins!"
 
 
+#Records what choice the human player has made
 def get_human_move():
     while True:
         choice = input("Enter bulbasaur, charmander or squirtle: ")
@@ -79,6 +110,7 @@ def get_human_move():
             print("invalid choice")
         
 
+#Randomly determines what the computer will choose
 def get_ai_move():
     number = random.randint(1, 3)
     if number == 1:
@@ -88,6 +120,7 @@ def get_ai_move():
     if number == 3:
         return 'squirtle'
 
+#prints a greeting and instructions for the game
 def print_welcome():
     print('Welcome to Bulbasaur Charmander Squirtle')
     print('The same as Rock Paper Scissors, but Pokemon themed')
@@ -117,6 +150,7 @@ def get_rarity(name):
     #Returns a list of card rarities for all Pokemon in the selected range.
     gen_one_dict = {i:a_list.count(i) for i in a_list}
     print(gen_one_dict)
+    make_a_graph(gen_one_dict)
 
 
 def get_counts(name_of_pokemon):
@@ -159,6 +193,7 @@ def rarities():
             get_count(i+1, gen_one)
         gen_one_dict = {i:gen_one.count(i) for i in gen_one}
         print(gen_one_dict)
+        make_a_graph(gen_one_dict)
     else:
         try:
             get_rarity(name)
@@ -172,7 +207,6 @@ def cards():
     print('Warning: all Pokemon will take 5+ min')
     names = input('Choice: ')
     if names == 'all':
-        ######     Input what range of pokemon dex numbers you want to retrieve     ######
         name_counts = dict()
         for num in range (1, 894):
             try:
