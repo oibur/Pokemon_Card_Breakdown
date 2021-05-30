@@ -14,9 +14,10 @@ def main():
     #Starts the master loop
     while True:
         print(f'What would you like to do {name}?')
-        print('Enter 1 to see how many cards a Pokemon has appeared on')
-        print("Enter 2 to see the rarity breakdown of a Pokemon's cards")
-        print('Enter 3 to play a game of Bulbasaur Charmander Squirtle!')
+        print('Enter 1 to see how many times a Pokemon has appeared on a card')
+        print("Enter 2 to see the rarity breakdown of a those cards")
+        print('Enter 3 to compare how many times several Pokemon have appeared')
+        print('Enter 4 to play a game of Bulbasaur Charmander Squirtle!')
         print('Enter 0 to exit')
         #Allows card number look-up through the card function
         try:
@@ -29,13 +30,46 @@ def main():
         #Allows card rarity look-up through the rarity function
         elif choice == 2:
             rarity_choice()
-        #Allows the user to play a game through the game function
+        #Aloows the user to compare several Pokemon through the compare function
         elif choice == 3:
+            compare_choice()
+        #Allows the user to play a game through the game function
+        elif choice == 4:
             game_choice()
         #Breaks the master loop
         else:
             print("That is not a valid choice.")
             break
+
+
+def graph_cards(name_of_pokemon, poke_dict):
+    endpoint = f'https://api.pokemontcg.io/v2/cards?q=name:{name_of_pokemon}'
+    data = (requests.get(endpoint, data={'X-api-key': api_key})).json() 
+    count = data['count']
+    if count > 0:
+        poke_dict[name_of_pokemon] = [count]
+    else:
+        print(f'{name_of_pokemon} is not a valid Pokemon name.')
+    
+poke_dict = {}
+
+def produce_graph(poke_dict):
+    name = []
+    number = []
+    items = poke_dict.items()
+    for item in items:
+        name.append(item[0]), number.append(item[1][0])
+    plt.barh(name, number)
+    plt.show()
+
+def compare_choice():
+    while True:
+        pokemon_name = input("Enter Pokemon one at a time,\nEnter 'graph' to compare selected Pokemon: ")
+        if pokemon_name == 'graph':
+            break
+        else:
+            graph_cards(pokemon_name, poke_dict)
+    produce_graph(poke_dict)
 
 
 def make_rarity_graph(rarity_dict):
